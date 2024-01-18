@@ -30,5 +30,5 @@ class BookSerializer(serializers.ModelSerializer):
 
 
 class BookSerializerList(BookSerializer):
-    author = serializers.CharField(source="genre__full_name", read_only=True)
-    genre = GenreSerializer(read_only=True)
+    author = serializers.CharField(source="author.full_name", read_only=True)
+    genre = GenreSerializer(read_only=True, many=True)
