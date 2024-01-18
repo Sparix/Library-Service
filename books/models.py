@@ -1,14 +1,14 @@
 from django.db import models
 
 
-class Genre(models.Model):
+class Genres(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
     def __str__(self) -> str:
         return self.name
 
 
-class Author(models.Model):
+class Authors(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
 
@@ -27,17 +27,17 @@ COVER = (
 )
 
 
-class Book(models.Model):
+class Books(models.Model):
     title = models.CharField(max_length=255)
     author = models.ForeignKey(
-        Author,
+        Authors,
         on_delete=models.SET_NULL,
         related_name="books_author",
         null=True
     )
     genre = models.ManyToManyField(
-        Genre,
-        blank=True
+        Genres,
+        related_name="books_genre",
     )
     cover = models.CharField(max_length=5, choices=COVER)
     inventory = models.PositiveIntegerField()
