@@ -15,6 +15,10 @@ class Author(models.Model):
     def __str__(self) -> str:
         return f"{self.first_name} {self.last_name}"
 
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
 
 SOFT, HARD = "soft", "hard"
 COVER = (
