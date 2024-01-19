@@ -5,11 +5,7 @@ from books.serializers import BookSerializer, BookSerializerList
 
 
 class BookViewSet(viewsets.ModelViewSet):
-    queryset = Books.objects.prefetch_related(
-        "genre"
-    ).select_related(
-        "author"
-    )
+    queryset = Books.objects.prefetch_related("genre").select_related("author")
     serializer_class = BookSerializer
 
     def get_serializer_class(self):

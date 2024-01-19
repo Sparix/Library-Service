@@ -30,10 +30,7 @@ COVER = (
 class Books(models.Model):
     title = models.CharField(max_length=255)
     author = models.ForeignKey(
-        Authors,
-        on_delete=models.SET_NULL,
-        related_name="books_author",
-        null=True
+        Authors, on_delete=models.SET_NULL, related_name="books_author", null=True
     )
     genre = models.ManyToManyField(
         Genres,
