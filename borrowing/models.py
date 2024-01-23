@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import Q, CheckConstraint, F
 
 from books.models import Books
 
@@ -13,3 +14,15 @@ class Borrowing(models.Model):
 
     def __str__(self) -> str:
         return f"{self.borrowing_date} - {self.book.title}"
+
+    class Meta:
+        constraints = [
+            CheckConstraint(
+                check=Q(borrowing_date__gt=F("expected_return_date")),
+                name="borrowing date can't be earlier than expected return date"
+            ),
+            CheckConstraint(
+                check=Q(borrowing_date__gte=F("actual_return_date")),
+                name="borrowing date can't be earlier than actual return date"
+            )
+        ]
