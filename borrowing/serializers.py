@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+import datetime
 
 from books.serializers import BookSerializerList
 from borrowing.models import Borrowing
@@ -8,13 +9,44 @@ from borrowing.models import Borrowing
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ("id", "email",)
+        fields = (
+            "id",
+            "email",
+        )
 
 
 class BorrowingSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        date = super(BorrowingSerializer, self).validate(attrs)
+        borrowing_date = datetime.date.today()
+        if not (attrs["expected_return_date"] > borrowing_date):
+            raise serializers.ValidationError(
+                {"borrowing_date": "borrowing date can't be equal or earlier than expected return date"}
+            )
+
+        if attrs["actual_return_date"]:
+            if not (attrs["actual_return_date"] >= borrowing_date):
+                raise serializers.ValidationError(
+                    {"borrowing_date": "borrowing date can't be earlier than actual return date"}
+                )
+
+        if not attrs["book"].inventory >= 1:
+            raise serializers.ValidationError(
+                {"inventory": "inventory must be greater than 0"}
+            )
+
+        return date
+
     class Meta:
         model = Borrowing
-        fields = ("id", "borrowing_date", "expected_return_date", "actual_return_date", "book", "user")
+        fields = (
+            "id",
+            "borrowing_date",
+            "expected_return_date",
+            "actual_return_date",
+            "book",
+            "user",
+        )
 
 
 class BorrowingListSerializer(BorrowingSerializer):
