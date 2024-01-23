@@ -18,11 +18,11 @@ class Borrowing(models.Model):
     class Meta:
         constraints = [
             CheckConstraint(
-                check=Q(borrowing_date__gt=F("expected_return_date")),
+                check=Q(expected_return_date__gt=F("borrowing_date")),
                 name="borrowing date can't be earlier than expected return date"
             ),
             CheckConstraint(
-                check=Q(borrowing_date__gte=F("actual_return_date")),
+                check=Q(actual_return_date__gte=F("borrowing_date")),
                 name="borrowing date can't be earlier than actual return date"
             )
         ]
