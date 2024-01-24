@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from borrowing.models import Borrowing
-from borrowing.serializers import BorrowingSerializer, BorrowingListSerializer
+from borrowing.serializers import BorrowingSerializer, BorrowingListSerializer, BorrowingRetrieveSerializer
 
 
 class BorrowingViewSet(viewsets.ModelViewSet):
@@ -13,8 +13,11 @@ class BorrowingViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
     def get_serializer_class(self):
-        if self.action in ("list", "retrieve"):
+        if self.action == "list":
             return BorrowingListSerializer
+
+        if self.action == "retrieve":
+            return BorrowingRetrieveSerializer
 
         return self.serializer_class
 
