@@ -27,6 +27,9 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         if self.action == "retrieve":
             return BorrowingRetrieveSerializer
 
+        if self.action == "borrowing_return":
+            return BorrowingReturnSerializer
+
         return self.serializer_class
 
     def get_queryset(self):
