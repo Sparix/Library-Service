@@ -56,8 +56,27 @@ class BorrowingSerializer(serializers.ModelSerializer):
 
 
 class BorrowingListSerializer(BorrowingSerializer):
-    book = BookSerializerList(read_only=True)
+    book_title = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field="title",
+        source="book",
+    )
     user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Borrowing
+        fields = (
+            "id",
+            "borrowing_date",
+            "expected_return_date",
+            "actual_return_date",
+            "book_title",
+            "user",
+        )
+
+
+class BorrowingRetrieveSerializer(BorrowingListSerializer):
+    book = BookSerializerList(read_only=True)
 
     class Meta:
         model = Borrowing
@@ -69,3 +88,20 @@ class BorrowingListSerializer(BorrowingSerializer):
             "book",
             "user",
         )
+
+
+class BorrowingReturnSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Borrowing
+        fields = ()
+
+    def update(self, instance, validated_data):
+        book = instance.book
+        book.inventory += 1
+        book.save()
+
+        return_date = datetime.date.today()
+        instance.actual_return_date = return_date
+        instance.save()
+
+        return instance
