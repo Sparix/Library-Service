@@ -88,3 +88,20 @@ class BorrowingRetrieveSerializer(BorrowingListSerializer):
             "book",
             "user",
         )
+
+
+class BorrowingReturnSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Borrowing
+        fields = ()
+
+    def update(self, instance, validated_data):
+        book = instance.book
+        book.inventory += 1
+        book.save()
+
+        return_date = datetime.date.today()
+        instance.actual_return_date = return_date
+        instance.save()
+
+        return instance
