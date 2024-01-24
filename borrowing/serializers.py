@@ -45,10 +45,27 @@ class BorrowingSerializer(serializers.ModelSerializer):
             "expected_return_date",
             "actual_return_date",
             "book",
-            "user",
         )
+
+    def create(self, validated_data):
+        book = validated_data["book"]
+        book.inventory -= 1
+        book.save()
+
+        return Borrowing.objects.create(**validated_data)
 
 
 class BorrowingListSerializer(BorrowingSerializer):
     book = BookSerializerList(read_only=True)
     user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Borrowing
+        fields = (
+            "id",
+            "borrowing_date",
+            "expected_return_date",
+            "actual_return_date",
+            "book",
+            "user",
+        )
