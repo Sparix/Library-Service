@@ -1,8 +1,5 @@
-import datetime
-
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
-from django.db.transaction import TransactionManagementError
 from django.test import TestCase
 
 from books.models import Books, Authors, Genres
