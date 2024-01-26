@@ -8,9 +8,13 @@ from rest_framework.test import APIClient
 
 from books.models import Authors, Genres, Books
 from borrowing.models import Borrowing
-from borrowing.serializers import BorrowingListSerializer
+from borrowing.serializers import BorrowingListSerializer, BorrowingRetrieveSerializer
 
 BORROWING_URL = reverse("borrowing:borrowing-list")
+
+
+def detail_borrowing(books_id: int):
+    return reverse("borrowing:borrowing-detail", args=[books_id])
 
 
 def create_book():
@@ -29,7 +33,7 @@ def create_book():
 
 def create_borrowing(user, book, **params):
     default_borrowing = {
-        "expected_return_date": f"2024-02-{random.randint(1, 10)}",
+        "expected_return_date": f"2024-02-20",
         "book": book,
         "user": user,
     }
@@ -113,3 +117,14 @@ class AuthenticatedBorrowingApiTest(TestCase):
         borrowing = Borrowing.objects.filter(actual_return_date=None)
 
         self.assertEqual(len(res.data), borrowing.count())
+
+    def test_detail_borrowing_api(self):
+        book = create_book()
+        borrowing = create_borrowing(self.user, book)
+
+        url = detail_borrowing(borrowing.id)
+        res = self.client.get(url)
+
+        serializer = BorrowingRetrieveSerializer(borrowing, many=False)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, serializer.data)
