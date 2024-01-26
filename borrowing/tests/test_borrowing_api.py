@@ -13,8 +13,9 @@ from borrowing.serializers import BorrowingListSerializer, BorrowingRetrieveSeri
 BORROWING_URL = reverse("borrowing:borrowing-list")
 
 
-def detail_borrowing(books_id: int):
-    return reverse("borrowing:borrowing-detail", args=[books_id])
+def detail_borrowing(borrowing_id: int):
+    return reverse("borrowing:borrowing-detail", args=[borrowing_id])
+
 
 
 def create_book():
@@ -69,10 +70,9 @@ class AuthenticatedBorrowingApiTest(TestCase):
         create_borrowing(self.user, book)
         res = self.client.get(BORROWING_URL)
         borrowing = Borrowing.objects.all()
-        sorted_res_data = sorted(res.data, key=lambda x: x['id'])
         serializers = BorrowingListSerializer(borrowing, many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(sorted_res_data, serializers.data)
+        self.assertEqual(res.data, serializers.data)
 
     def test_borrowing_create_api(self):
         book = create_book()
@@ -104,6 +104,7 @@ class AuthenticatedBorrowingApiTest(TestCase):
         serializers = BorrowingListSerializer(borrowing_list, many=True)
 
         self.assertEqual(len(res.data), len(serializers.data))
+        self.assertEqual(res.data, serializers.data)
 
     def test_filter_list_borrowing_api(self):
         book = create_book()
@@ -128,3 +129,57 @@ class AuthenticatedBorrowingApiTest(TestCase):
         serializer = BorrowingRetrieveSerializer(borrowing, many=False)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
+
+
+class IsAdminBorrowingApi(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            email="admin@admin.com",
+            password="test12345",
+            is_staff=True
+        )
+
+        self.client.force_authenticate(self.user)
+
+    def test_borrowing_list_admin_api(self):
+        new_user = get_user_model().objects.create_user(
+            email="test@test.ua",
+            password="test12345"
+        )
+        new_user1 = get_user_model().objects.create_user(
+            email="user@user.ua",
+            password="test12345"
+        )
+        book = create_book()
+
+        create_borrowing(self.user, book)
+        create_borrowing(new_user1, book)
+        create_borrowing(new_user, book)
+
+        res = self.client.get(BORROWING_URL)
+        borrowing = Borrowing.objects.all()
+
+        serializer = BorrowingListSerializer(borrowing, many=True)
+
+        self.assertEqual(res.data, serializer.data)
+        self.assertEqual(len(res.data), borrowing.count())
+
+    def test_filter_user_borrowing_list_admin_api(self):
+        test_user = get_user_model().objects.create_user(
+            email="test@test.ua",
+            password="test12345"
+        )
+        book = create_book()
+
+        create_borrowing(self.user, book)
+        create_borrowing(test_user, book)
+        create_borrowing(test_user, book)
+
+        res = self.client.get(BORROWING_URL, {"user_id": test_user.id})
+
+        borrowing = Borrowing.objects.filter(user__id=test_user.id)
+        serializer = BorrowingListSerializer(borrowing, many=True)
+
+        self.assertEqual(res.data, serializer.data)
+        self.assertEqual(len(res.data), borrowing.count())
