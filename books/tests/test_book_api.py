@@ -87,3 +87,37 @@ class UnauthenticatedBookApiTest(TestCase):
         }
         res = self.client.post(BOOK_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_detail_book(self):
+        book = sample_book()
+        genre = Genres.objects.create(name="Novel")
+        url = detail_book(book.id)
+        res = self.client.patch(
+            url,
+            book.genre.add(genre)
+        )
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_detail_book(self):
+        authors = author_create()
+
+        book = sample_book(author=authors)
+        genre = Genres.objects.create(name="Novel")
+        book.genre.add(genre)
+        url = detail_book(book.id)
+        res = self.client.get(url)
+
+        serializer = BookSerializerList(book)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_delete_book(self):
+        authors = author_create()
+
+        book = sample_book(author=authors)
+
+        url = detail_book(book.id)
+        res = self.client.delete(url)
+
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
