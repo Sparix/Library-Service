@@ -26,3 +26,4 @@ class Borrowing(models.Model):
                 name="borrowing date can't be earlier than actual return date"
             )
         ]
+        ordering = ("id",)
