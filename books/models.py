@@ -37,7 +37,7 @@ class Books(models.Model):
         related_name="books_genre",
     )
     cover = models.CharField(max_length=5, choices=COVER)
-    inventory = models.PositiveIntegerField()
+    inventory = models.PositiveIntegerField(default=0)
     daily_fee = models.DecimalField(decimal_places=2, max_digits=5)
 
     def __str__(self):

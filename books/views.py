@@ -11,6 +11,6 @@ class BookViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOrCreate, )
 
     def get_serializer_class(self):
-        if self.action == "list":
+        if self.action in ("list", "retrieve"):
             return BookSerializerList
         return BookSerializer
