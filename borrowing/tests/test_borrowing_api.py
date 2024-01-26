@@ -17,6 +17,9 @@ def detail_borrowing(borrowing_id: int):
     return reverse("borrowing:borrowing-detail", args=[borrowing_id])
 
 
+def borrowing_return(borrowing_id: int):
+    return reverse("borrowing:borrowing-borrowing-return", args=[borrowing_id])
+
 
 def create_book():
     author = Authors.objects.create(first_name="Test", last_name="Testovich")
@@ -129,6 +132,18 @@ class AuthenticatedBorrowingApiTest(TestCase):
         serializer = BorrowingRetrieveSerializer(borrowing, many=False)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
+
+    def test_borrowing_action_borrowing_return_book(self):
+        book = create_book()
+        borrowing = create_borrowing(self.user, book)
+        instance_inventory = book.inventory
+        url = borrowing_return(borrowing.id)
+        res = self.client.put(url)
+        book.refresh_from_db()
+        borrowing.refresh_from_db()
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(book.inventory, instance_inventory + 1)
+        self.assertNotEqual(borrowing.actual_return_date, None)
 
 
 class IsAdminBorrowingApi(TestCase):
