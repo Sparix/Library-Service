@@ -121,3 +121,34 @@ class UnauthenticatedBookApiTest(TestCase):
         res = self.client.delete(url)
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class AuthenticatedBookApiTest(UnauthenticatedBookApiTest):
+    def setUp(self):
+        self.client = APIClient()
+
+        self.user = get_user_model().objects.create_user(
+            email="user@user.com",
+            password="test12345"
+        )
+        self.client.force_authenticate(self.user)
+
+    def test_update_detail_book(self):
+        book = sample_book()
+        genre = Genres.objects.create(name="Novel")
+        url = detail_book(book.id)
+        res = self.client.patch(
+            url,
+            book.genre.add(genre)
+        )
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_book(self):
+        authors = author_create()
+
+        book = sample_book(author=authors)
+
+        url = detail_book(book.id)
+        res = self.client.delete(url)
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
