@@ -1,3 +1,4 @@
+import datetime
 import random
 
 from django.contrib.auth import get_user_model
@@ -37,7 +38,7 @@ def create_book():
 
 def create_borrowing(user, book, **params):
     default_borrowing = {
-        "expected_return_date": f"2024-02-20",
+        "expected_return_date": datetime.date.today() + datetime.timedelta(weeks=3),
         "book": book,
         "user": user,
     }
@@ -81,7 +82,7 @@ class AuthenticatedBorrowingApiTest(TestCase):
         book = create_book()
         initial_inventory = book.inventory
         payload = {
-            "expected_return_date": f"2024-02-{random.randint(1, 10)}",
+            "expected_return_date": datetime.date.today() + datetime.timedelta(weeks=3),
             "actual_return_date": "",
             "book": book.id,
         }
@@ -112,8 +113,8 @@ class AuthenticatedBorrowingApiTest(TestCase):
     def test_filter_list_borrowing_api(self):
         book = create_book()
 
-        create_borrowing(self.user, book, actual_return_date="2024-01-28")
-        create_borrowing(self.user, book, actual_return_date="2024-02-01")
+        create_borrowing(self.user, book, actual_return_date=datetime.date.today() + datetime.timedelta(days=2))
+        create_borrowing(self.user, book, actual_return_date=datetime.date.today() + datetime.timedelta(weeks=3))
         create_borrowing(self.user, book)
         create_borrowing(self.user, book)
 
