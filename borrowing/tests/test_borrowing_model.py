@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
 from django.test import TestCase
@@ -30,7 +32,7 @@ def create_user():
 class TestBorrowingModel(TestCase):
     def test_borrowing_str(self):
         borrowing = Borrowing.objects.create(
-            expected_return_date="2024-02-26",
+            expected_return_date=datetime.date.today() + datetime.timedelta(weeks=1),
             book=create_book(),
             user=create_user(),
         )
@@ -47,8 +49,7 @@ class TestBorrowingModel(TestCase):
         with self.assertRaises(IntegrityError) as raised_1:
             with transaction.atomic():
                 Borrowing.objects.create(
-                    borrowing_date="2024-01-26",
-                    expected_return_date="2024-01-26",
+                    expected_return_date=datetime.date.today(),
                     book=book,
                     user=user,
                 )
@@ -56,23 +57,21 @@ class TestBorrowingModel(TestCase):
         with self.assertRaises(IntegrityError) as raised_2:
             with transaction.atomic():
                 Borrowing.objects.create(
-                    borrowing_date="2024-01-26",
                     expected_return_date="2024-01-20",
                     book=book,
                     user=user,
                 )
 
         borrowing_1 = Borrowing.objects.create(
-            borrowing_date="2024-01-26",
-            expected_return_date="2024-01-27",
+            expected_return_date=datetime.date.today() + datetime.timedelta(days=3),
             book=book,
             user=user,
         )
 
         self.assertEqual(IntegrityError, type(raised_1.exception))
         self.assertEqual(IntegrityError, type(raised_2.exception))
-        self.assertEqual(str(borrowing_1.borrowing_date), "2024-01-26")
-        self.assertEqual(str(borrowing_1.expected_return_date), "2024-01-27")
+        self.assertEqual(str(borrowing_1.borrowing_date), str(datetime.date.today()))
+        self.assertEqual(str(borrowing_1.expected_return_date), str(datetime.date.today() + datetime.timedelta(days=3)))
 
     def test_borrowing_constrains_actual_return_date(self):
         book = create_book()
@@ -80,20 +79,18 @@ class TestBorrowingModel(TestCase):
         with self.assertRaises(IntegrityError) as raised_1:
             with transaction.atomic():
                 Borrowing.objects.create(
-                    borrowing_date="2024-01-26",
-                    expected_return_date="2024-01-28",
-                    actual_return_date="2024-01-24",
+                    expected_return_date=datetime.date.today() + datetime.timedelta(days=3),
+                    actual_return_date=datetime.date.today() - datetime.timedelta(days=3),
                     book=book,
                     user=user,
                 )
 
         borrowing_1 = Borrowing.objects.create(
-            borrowing_date="2024-01-26",
-            expected_return_date="2024-01-28",
-            actual_return_date="2024-01-26",
+            expected_return_date=datetime.date.today() + datetime.timedelta(days=3),
+            actual_return_date=datetime.date.today(),
             book=book,
             user=user,
         )
 
         self.assertEqual(IntegrityError, type(raised_1.exception))
-        self.assertEqual(str(borrowing_1.actual_return_date), "2024-01-26")
+        self.assertEqual(str(borrowing_1.actual_return_date), str(datetime.date.today()))
