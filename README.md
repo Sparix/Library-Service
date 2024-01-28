@@ -24,3 +24,29 @@ This application was designed to manage library data, providing details on books
 #### Swagger UI Documentation:
 
 - The application provides documentation through Swagger UI, offering a clear and interactive interface for understanding the API endpoints and functionality.
+
+# Installation
+
+To launch the application, follow next steps:
+
+- Fork the repository
+
+```shell
+git clone https://github.com/vlodek69/drf-library
+```
+
+```
+cd drf-library
+python -m venv venv
+venv\Scripts\activate (on Windows)
+source venv/bin/activate (on macOS)
+```
+
+Copy .env-sample -> .env and populate with all required data.
+
+```shell
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
+To run the tests: ``python manage.py runserver``
