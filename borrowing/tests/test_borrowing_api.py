@@ -1,11 +1,9 @@
 import datetime
-import random
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
-from rest_framework import status
-from rest_framework.test import APIClient
+from rest_framework import status, test
 
 from books.models import Authors, Genres, Books
 from borrowing.models import Borrowing
@@ -48,7 +46,7 @@ def create_borrowing(user, book, **params):
 
 class UnAuthenticatedBorrowingApiTest(TestCase):
     def setUp(self):
-        self.client = APIClient()
+        self.client = test.APIClient()
 
     def test_auth_required(self):
         res = self.client.get(BORROWING_URL)
@@ -57,7 +55,7 @@ class UnAuthenticatedBorrowingApiTest(TestCase):
 
 class AuthenticatedBorrowingApiTest(TestCase):
     def setUp(self):
-        self.client = APIClient()
+        self.client = test.APIClient()
         self.user = get_user_model().objects.create_user(
             email="user@user.com",
             password="test12345",
@@ -149,7 +147,7 @@ class AuthenticatedBorrowingApiTest(TestCase):
 
 class IsAdminBorrowingApi(TestCase):
     def setUp(self):
-        self.client = APIClient()
+        self.client = test.APIClient()
         self.user = get_user_model().objects.create_user(
             email="admin@admin.com",
             password="test12345",
