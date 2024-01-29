@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -66,3 +67,24 @@ class BorrowingViewSet(viewsets.ModelViewSet):
             {"actual_return_date": "You have already returned this book"},
             status=status.HTTP_400_BAD_REQUEST
         )
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "is_active",
+                type=str,
+                description="Filter by non returned borrowing book"
+            ),
+            OpenApiParameter(
+                "user_id",
+                type={"type": "number"},
+                description=(
+                        "Filter borrowing records "
+                        "based on a specific user, "
+                        "applicable for administrators."
+                )
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
