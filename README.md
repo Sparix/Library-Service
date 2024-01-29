@@ -49,4 +49,4 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
 ```
-To run the tests: ``python manage.py runserver``
+To run the tests: ``python manage.py test``
