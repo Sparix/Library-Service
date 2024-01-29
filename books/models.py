@@ -20,14 +20,11 @@ class Authors(models.Model):
         return f"{self.first_name} {self.last_name}"
 
 
-SOFT, HARD = "soft", "hard"
-COVER = (
-    (SOFT, "SOFT"),
-    (HARD, "HARD"),
-)
-
-
 class Books(models.Model):
+    class CoverChoices(models.TextChoices):
+        SOFT = "soft", "SOFT"
+        HARD = "hard", "HARD"
+
     title = models.CharField(max_length=255)
     author = models.ForeignKey(
         Authors, on_delete=models.SET_NULL, related_name="books_author", null=True
@@ -36,7 +33,7 @@ class Books(models.Model):
         Genres,
         related_name="books_genre",
     )
-    cover = models.CharField(max_length=5, choices=COVER)
+    cover = models.CharField(max_length=5, choices=CoverChoices.choices)
     inventory = models.PositiveIntegerField(default=0)
     daily_fee = models.DecimalField(decimal_places=2, max_digits=5)
 
