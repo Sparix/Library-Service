@@ -32,7 +32,7 @@ To launch the application, follow next steps:
 - Fork the repository
 
 ```shell
-git clone https://github.com/vlodek69/drf-library
+git clone https://github.com/Sparix/Library-Service
 ```
 
 ```
